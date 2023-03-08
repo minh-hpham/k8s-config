@@ -1,0 +1,4 @@
+resources:
+  - redis-sentinel.yaml
+
+namespace: default

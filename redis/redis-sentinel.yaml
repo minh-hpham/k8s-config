@@ -5,9 +5,11 @@ kind: ServiceAccount
 automountServiceAccountToken: true
 metadata:
   name: redis
+  namespace: "default"
   labels:
     app.kubernetes.io/name: redis
     helm.sh/chart: redis-17.8.2
+    app.kubernetes.io/instance: state-mgmt
     app.kubernetes.io/managed-by: Helm
 ---
 # Source: redis/templates/secret.yaml
@@ -15,22 +17,26 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: redis
+  namespace: "default"
   labels:
     app.kubernetes.io/name: redis
     helm.sh/chart: redis-17.8.2
+    app.kubernetes.io/instance: state-mgmt
     app.kubernetes.io/managed-by: Helm
 type: Opaque
 data:
-  redis-password: "NXV2M0FUV0Y5Vg=="
+  redis-password: "bnFoRU1jbHg0Ng=="
 ---
 # Source: redis/templates/configmap.yaml
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: redis-configuration
+  namespace: "default"
   labels:
     app.kubernetes.io/name: redis
     helm.sh/chart: redis-17.8.2
+    app.kubernetes.io/instance: state-mgmt
     app.kubernetes.io/managed-by: Helm
 data:
   redis.conf: |-
@@ -67,9 +73,11 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: redis-health
+  namespace: "default"
   labels:
     app.kubernetes.io/name: redis
     helm.sh/chart: redis-17.8.2
+    app.kubernetes.io/instance: state-mgmt
     app.kubernetes.io/managed-by: Helm
 data:
   ping_readiness_local.sh: |-
@@ -206,17 +214,19 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: redis-scripts
+  namespace: "default"
   labels:
     app.kubernetes.io/name: redis
     helm.sh/chart: redis-17.8.2
+    app.kubernetes.io/instance: state-mgmt
     app.kubernetes.io/managed-by: Helm
 data:
   start-node.sh: |
     #!/bin/bash
 
-    . /opt/app/scripts/libos.sh
-    . /opt/app/scripts/liblog.sh
-    . /opt/app/scripts/libvalidations.sh
+    . /opt/bitnami/scripts/libos.sh
+    . /opt/bitnami/scripts/liblog.sh
+    . /opt/bitnami/scripts/libvalidations.sh
 
     get_port() {
         hostname="$1"
@@ -332,17 +342,17 @@ data:
       REDIS_MASTER_PORT_NUMBER="${REDIS_EXTERNAL_MASTER_PORT}"
     fi
 
-    if [[ -f /opt/app/redis/mounted-etc/replica.conf ]];then
-        cp /opt/app/redis/mounted-etc/replica.conf /opt/app/redis/etc/replica.conf
+    if [[ -f /opt/bitnami/redis/mounted-etc/replica.conf ]];then
+        cp /opt/bitnami/redis/mounted-etc/replica.conf /opt/bitnami/redis/etc/replica.conf
     fi
 
-    if [[ -f /opt/app/redis/mounted-etc/redis.conf ]];then
-        cp /opt/app/redis/mounted-etc/redis.conf /opt/app/redis/etc/redis.conf
+    if [[ -f /opt/bitnami/redis/mounted-etc/redis.conf ]];then
+        cp /opt/bitnami/redis/mounted-etc/redis.conf /opt/bitnami/redis/etc/redis.conf
     fi
 
-    echo "" >> /opt/app/redis/etc/replica.conf
-    echo "replica-announce-port $REDISPORT" >> /opt/app/redis/etc/replica.conf
-    echo "replica-announce-ip $(get_full_hostname "$HOSTNAME")" >> /opt/app/redis/etc/replica.conf
+    echo "" >> /opt/bitnami/redis/etc/replica.conf
+    echo "replica-announce-port $REDISPORT" >> /opt/bitnami/redis/etc/replica.conf
+    echo "replica-announce-ip $(get_full_hostname "$HOSTNAME")" >> /opt/bitnami/redis/etc/replica.conf
     ARGS=("--port" "${REDIS_PORT}")
 
     if [[ "$REDIS_REPLICATION_MODE" = "slave" ]] || [[ "$REDIS_REPLICATION_MODE" = "replica" ]]; then
@@ -350,16 +360,16 @@ data:
     fi
     ARGS+=("--requirepass" "${REDIS_PASSWORD}")
     ARGS+=("--masterauth" "${REDIS_MASTER_PASSWORD}")
-    ARGS+=("--include" "/opt/app/redis/etc/replica.conf")
-    ARGS+=("--include" "/opt/app/redis/etc/redis.conf")
+    ARGS+=("--include" "/opt/bitnami/redis/etc/replica.conf")
+    ARGS+=("--include" "/opt/bitnami/redis/etc/redis.conf")
     exec redis-server "${ARGS[@]}"
 
   start-sentinel.sh: |
     #!/bin/bash
 
-    . /opt/app/scripts/libos.sh
-    . /opt/app/scripts/libvalidations.sh
-    . /opt/app/scripts/libfile.sh
+    . /opt/bitnami/scripts/libos.sh
+    . /opt/bitnami/scripts/libvalidations.sh
+    . /opt/bitnami/scripts/libfile.sh
 
     HEADLESS_SERVICE="redis-headless.default.svc.cluster.local"
     REDIS_SERVICE="redis.default.svc.cluster.local"
@@ -405,10 +415,10 @@ data:
         value="${value//\?/\\?}"
         [[ "$value" = "" ]] && value="\"$value\""
 
-        replace_in_file "/opt/app/redis-sentinel/etc/sentinel.conf" "^#*\s*${key} .*" "${key} ${value}" false
+        replace_in_file "/opt/bitnami/redis-sentinel/etc/sentinel.conf" "^#*\s*${key} .*" "${key} ${value}" false
     }
     sentinel_conf_add() {
-        echo $'\n'"$@" >> "/opt/app/redis-sentinel/etc/sentinel.conf"
+        echo $'\n'"$@" >> "/opt/bitnami/redis-sentinel/etc/sentinel.conf"
     }
     host_id() {
         echo "$1" | openssl sha1 | awk '{print $2}'
@@ -447,10 +457,10 @@ data:
       REDIS_MASTER_PORT_NUMBER="${REDIS_EXTERNAL_MASTER_PORT}"
     fi
 
-    cp /opt/app/redis-sentinel/mounted-etc/sentinel.conf /opt/app/redis-sentinel/etc/sentinel.conf
-    printf "\nsentinel auth-pass %s %s" "mymaster" "$REDIS_PASSWORD" >> /opt/app/redis-sentinel/etc/sentinel.conf
-    printf "\nrequirepass %s" "$REDIS_PASSWORD" >> /opt/app/redis-sentinel/etc/sentinel.conf
-    printf "\nsentinel myid %s" "$(host_id "$HOSTNAME")" >> /opt/app/redis-sentinel/etc/sentinel.conf
+    cp /opt/bitnami/redis-sentinel/mounted-etc/sentinel.conf /opt/bitnami/redis-sentinel/etc/sentinel.conf
+    printf "\nsentinel auth-pass %s %s" "mymaster" "$REDIS_PASSWORD" >> /opt/bitnami/redis-sentinel/etc/sentinel.conf
+    printf "\nrequirepass %s" "$REDIS_PASSWORD" >> /opt/bitnami/redis-sentinel/etc/sentinel.conf
+    printf "\nsentinel myid %s" "$(host_id "$HOSTNAME")" >> /opt/bitnami/redis-sentinel/etc/sentinel.conf
 
     if [[ -z "$REDIS_MASTER_HOST" ]] || [[ -z "$REDIS_MASTER_PORT_NUMBER" ]]
     then
@@ -486,20 +496,20 @@ data:
         add_known_replica "$hostname" "$ip"
     done
 
-    echo "" >> /opt/app/redis-sentinel/etc/sentinel.conf
-    echo "sentinel announce-hostnames yes" >> /opt/app/redis-sentinel/etc/sentinel.conf
-    echo "sentinel resolve-hostnames yes" >> /opt/app/redis-sentinel/etc/sentinel.conf
-    echo "sentinel announce-port $SERVPORT" >> /opt/app/redis-sentinel/etc/sentinel.conf
-    echo "sentinel announce-ip $(get_full_hostname "$HOSTNAME")" >> /opt/app/redis-sentinel/etc/sentinel.conf
-    exec redis-server /opt/app/redis-sentinel/etc/sentinel.conf --sentinel
+    echo "" >> /opt/bitnami/redis-sentinel/etc/sentinel.conf
+    echo "sentinel announce-hostnames yes" >> /opt/bitnami/redis-sentinel/etc/sentinel.conf
+    echo "sentinel resolve-hostnames yes" >> /opt/bitnami/redis-sentinel/etc/sentinel.conf
+    echo "sentinel announce-port $SERVPORT" >> /opt/bitnami/redis-sentinel/etc/sentinel.conf
+    echo "sentinel announce-ip $(get_full_hostname "$HOSTNAME")" >> /opt/bitnami/redis-sentinel/etc/sentinel.conf
+    exec redis-server /opt/bitnami/redis-sentinel/etc/sentinel.conf --sentinel
   prestop-sentinel.sh: |
     #!/bin/bash
 
-    . /opt/app/scripts/libvalidations.sh
-    . /opt/app/scripts/libos.sh
+    . /opt/bitnami/scripts/libvalidations.sh
+    . /opt/bitnami/scripts/libos.sh
 
     HEADLESS_SERVICE="redis-headless.default.svc.cluster.local"
-    SENTINEL_SERVICE_ENV_NAME=STATE_MGMT_REDIS_SERVICE_PORT_TCP_SENTINEL
+    SENTINEL_SERVICE_ENV_NAME=REDIS_SERVICE_PORT_TCP_SENTINEL
     SENTINEL_SERVICE_PORT=${!SENTINEL_SERVICE_ENV_NAME}
 
     get_full_hostname() {
@@ -542,8 +552,8 @@ data:
   prestop-redis.sh: |
     #!/bin/bash
 
-    . /opt/app/scripts/libvalidations.sh
-    . /opt/app/scripts/libos.sh
+    . /opt/bitnami/scripts/libvalidations.sh
+    . /opt/bitnami/scripts/libos.sh
 
     run_redis_command() {
         if is_boolean_yes "$REDIS_TLS_ENABLED"; then
@@ -558,7 +568,7 @@ data:
     }
 
     HEADLESS_SERVICE="redis-headless.default.svc.cluster.local"
-    SENTINEL_SERVICE_ENV_NAME=STATE_MGMT_REDIS_SERVICE_PORT_TCP_SENTINEL
+    SENTINEL_SERVICE_ENV_NAME=REDIS_SERVICE_PORT_TCP_SENTINEL
     SENTINEL_SERVICE_PORT=${!SENTINEL_SERVICE_ENV_NAME}
 
     get_full_hostname() {
@@ -601,42 +611,16 @@ data:
         exit 0
     fi
 ---
-# Source: redis/templates/role.yaml
-apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
-metadata:
-  name: redis
-  labels:
-    app.kubernetes.io/name: redis
-    helm.sh/chart: redis-17.8.2
-    app.kubernetes.io/managed-by: Helm
-rules:
----
-# Source: redis/templates/rolebinding.yaml
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  name: redis
-  labels:
-    app.kubernetes.io/name: redis
-    helm.sh/chart: redis-17.8.2
-    app.kubernetes.io/managed-by: Helm
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: Role
-  name: redis
-subjects:
-  - kind: ServiceAccount
-    name: redis
----
 # Source: redis/templates/headless-svc.yaml
 apiVersion: v1
 kind: Service
 metadata:
   name: redis-headless
+  namespace: "default"
   labels:
     app.kubernetes.io/name: redis
     helm.sh/chart: redis-17.8.2
+    app.kubernetes.io/instance: state-mgmt
     app.kubernetes.io/managed-by: Helm
   annotations:
     
@@ -653,15 +637,18 @@ spec:
       targetPort: redis-sentinel
   selector:
     app.kubernetes.io/name: redis
+    app.kubernetes.io/instance: state-mgmt
 ---
 # Source: redis/templates/sentinel/service.yaml
 apiVersion: v1
 kind: Service
 metadata:
   name: redis
+  namespace: "default"
   labels:
     app.kubernetes.io/name: redis
     helm.sh/chart: redis-17.8.2
+    app.kubernetes.io/instance: state-mgmt
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: node
 spec:
@@ -678,16 +665,19 @@ spec:
       nodePort: null
   selector:
     app.kubernetes.io/name: redis
+    app.kubernetes.io/instance: state-mgmt
     app.kubernetes.io/component: node
 ---
 # Source: redis/templates/sentinel/statefulset.yaml
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: redis-sentinel
+  name: redis-node
+  namespace: "default"
   labels:
     app.kubernetes.io/name: redis
     helm.sh/chart: redis-17.8.2
+    app.kubernetes.io/instance: state-mgmt
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: node
 spec:
@@ -695,6 +685,7 @@ spec:
   selector:
     matchLabels:
       app.kubernetes.io/name: redis
+      app.kubernetes.io/instance: state-mgmt
       app.kubernetes.io/component: node
   serviceName: redis-headless
   updateStrategy:
@@ -704,13 +695,14 @@ spec:
       labels:
         app.kubernetes.io/name: redis
         helm.sh/chart: redis-17.8.2
+        app.kubernetes.io/instance: state-mgmt
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/component: node
       annotations:
-        checksum/configmap: ee43000c6e3483dfaa525cb8d744673373c8ebf811d9ff694a4a3effa8b972b5
-        checksum/health: ceef3e4f2c45d4bbd3da837d3b7cd3a86a4fed32b59c6080cb2dd95cae13febc
-        checksum/scripts: c9cc8f78c16c8aa4efc3cb74cdf929b589de321be4616b6007fdbd70910f152d
-        checksum/secret: 40670a335eeb32d6ffe7c320dd304cf653cf2bd6653c1b5d1b8ddb30360e7b97
+        checksum/configmap: 045029c79fa2d42f6449f70699fd35f03618ffb001853040884745590b486254
+        checksum/health: fb9722ad2027439041883829a794d464ad8ccfb083050da4c49f2d6d4102dfc9
+        checksum/scripts: 701deccaeb410b21318e144c6c3b6daf6336eedc83ff74551ab403ff49379385
+        checksum/secret: 06f6375fc3a5237178dd005576dc5ce958e9b1888f6a033d802a9d7ab91be33b
     spec:
       
       securityContext:
@@ -725,6 +717,7 @@ spec:
                 labelSelector:
                   matchLabels:
                     app.kubernetes.io/name: redis
+                    app.kubernetes.io/instance: state-mgmt
                     app.kubernetes.io/component: node
                 topologyKey: kubernetes.io/hostname
               weight: 1
@@ -733,22 +726,22 @@ spec:
       terminationGracePeriodSeconds: 30
       containers:
         - name: redis
-          image: docker.io/app/redis:7.0.9-debian-11-r1
-          imagePullPolicy: "IfNotPresent"
+          image: docker.io/bitnami/redis:7.0.9
+          imagePullPolicy: "Always"
           lifecycle:
             preStop:
               exec:
                 command:
                   - /bin/bash
                   - -c
-                  - /opt/app/scripts/start-scripts/prestop-redis.sh
+                  - /opt/bitnami/scripts/start-scripts/prestop-redis.sh
           securityContext:
             runAsUser: 1001
           command:
             - /bin/bash
           args:
             - -c
-            - /opt/app/scripts/start-scripts/start-node.sh
+            - /opt/bitnami/scripts/start-scripts/start-node.sh
           env:
             - name: BITNAMI_DEBUG
               value: "false"
@@ -817,19 +810,19 @@ spec:
             requests: {}
           volumeMounts:
             - name: start-scripts
-              mountPath: /opt/app/scripts/start-scripts
+              mountPath: /opt/bitnami/scripts/start-scripts
             - name: health
               mountPath: /health
             - name: redis-data
               mountPath: /data
             - name: config
-              mountPath: /opt/app/redis/mounted-etc
+              mountPath: /opt/bitnami/redis/mounted-etc
             - name: redis-tmp-conf
-              mountPath: /opt/app/redis/etc
+              mountPath: /opt/bitnami/redis/etc
             - name: tmp
               mountPath: /tmp
         - name: sentinel
-          image: docker.io/redis:7.0.9
+          image: docker.io/bitnami/redis-sentinel:7.0.9
           imagePullPolicy: "Always"
           lifecycle:
             preStop:
@@ -837,14 +830,14 @@ spec:
                 command:
                   - /bin/bash
                   - -c
-                  - /opt/app/scripts/start-scripts/prestop-sentinel.sh
+                  - /opt/bitnami/scripts/start-scripts/prestop-sentinel.sh
           securityContext:
             runAsUser: 1001
           command:
             - /bin/bash
           args:
             - -c
-            - /opt/app/scripts/start-scripts/start-sentinel.sh
+            - /opt/bitnami/scripts/start-scripts/start-sentinel.sh
           env:
             - name: BITNAMI_DEBUG
               value: "false"
@@ -898,15 +891,15 @@ spec:
             requests: {}
           volumeMounts:
             - name: start-scripts
-              mountPath: /opt/app/scripts/start-scripts
+              mountPath: /opt/bitnami/scripts/start-scripts
             - name: health
               mountPath: /health
             - name: sentinel-data
-              mountPath: /opt/app/redis-sentinel/etc
+              mountPath: /opt/bitnami/redis-sentinel/etc
             - name: redis-data
               mountPath: /data
             - name: config
-              mountPath: /opt/app/redis-sentinel/mounted-etc
+              mountPath: /opt/bitnami/redis-sentinel/mounted-etc
       volumes:
         - name: start-scripts
           configMap:
@@ -930,6 +923,7 @@ spec:
         name: redis-data
         labels:
           app.kubernetes.io/name: redis
+          app.kubernetes.io/instance: state-mgmt
           app.kubernetes.io/component: node
       spec:
         accessModes:
