@@ -1,28 +1,4 @@
 ---
-# Source: dapr/charts/dapr_dashboard/templates/dapr_dashboard_poddisruptionbudget.yaml
-apiVersion: policy/v1
-kind: PodDisruptionBudget
-metadata:
-  name: dapr-dashboard-disruption-budget
-  labels:
-    app: dapr-dashboard
-    app.kubernetes.io/component: dashboard
-    app.kubernetes.io/managed-by: helm
-    app.kubernetes.io/name: dapr
-    app.kubernetes.io/part-of: dapr
-    app.kubernetes.io/version: 1.10.2
-spec:
-  minAvailable: 1
-  maxUnavailable: 25%
-  selector:
-    matchLabels:
-      app: dapr-dashboard
-      app.kubernetes.io/component: dashboard
-      app.kubernetes.io/managed-by: helm
-      app.kubernetes.io/name: dapr
-      app.kubernetes.io/part-of: dapr
-      app.kubernetes.io/version: 1.10.2
----
 # Source: dapr/charts/dapr_operator/templates/dapr_operator_poddisruptionbudget.yaml
 apiVersion: policy/v1
 kind: PodDisruptionBudget
@@ -180,10 +156,11 @@ metadata:
     app.kubernetes.io/version: 1.10.2
 ---
 # Source: dapr/charts/dapr_operator/templates/dapr_operator_deployment.yaml
-apiVersion: v1
-kind: Secret
+apiVersion: cert-manager.io/v1
+kind: Certificate
 metadata:
   name: dapr-webhook-cert
+  namespace: dapr-webhook
   labels:
     app: dapr-operator
     app.kubernetes.io/component: operator
@@ -191,11 +168,15 @@ metadata:
     app.kubernetes.io/name: dapr
     app.kubernetes.io/part-of: dapr
     app.kubernetes.io/version: 1.10.2
-data:
-  tls.crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUR0VENDQXAyZ0F3SUJBZ0lRTFlIRm4zU2t4bFQ3S3BhZnRJVW9EekFOQmdrcWhraUc5dzBCQVFzRkFEQWEKTVJnd0ZnWURWUVFERXc5a1lYQnlMWGRsWW1odmIyc3RZMkV3SGhjTk1qTXdNekUwTVRBek16RTFXaGNOTXpNdwpNekV4TVRBek16RTFXakFYTVJVd0V3WURWUVFERXd4a1lYQnlMWGRsWW1odmIyc3dnZ0VpTUEwR0NTcUdTSWIzCkRRRUJBUVVBQTRJQkR3QXdnZ0VLQW9JQkFRREVqdGNtMkthR2tPZE9ieUJDaHQwbVZkaTVZRTBnUFZwQlJsaTIKNjRwd1ZQRFZZL3UrNWEzZEJOcGZiV214bVQvTDNQYStUWnIzRU1XODVnU0RVS2FzR3duNkJ1ZVhHK0hFU0dURQpmY1ptMTIreDM0TVV6STF5bEJJbzB4SHk5Sm9CTU1ZaEd3UDhTQ0NSalh4c3d1empBYjFZRklkcnhRVUJubGN3CkVTM096ak9FK2FXV0Q2dXgrRlhmUVc3THhIWlQ2NVNPRm9WRlBaeG1oYWo1djl4MUt0a1BuU0NKOFRTS1ZtSEIKWEJFNVBYdzZROXllYTVMWXhQYVdQbjI1RGdpMWh1ckxTQ2R6cW16Mm1wbnk3ekliU056ZHA0amxmN2RKZmVkMApGT0Q2TTRoL2d1RW0rOXdmTi9MZ3dyZ3ZiVWlLRUJuQkRoMmVoTVhjYW5Ob0pWNUhBZ01CQUFHamdma3dnZll3CkRnWURWUjBQQVFIL0JBUURBZ1dnTUIwR0ExVWRKUVFXTUJRR0NDc0dBUVVGQndNQkJnZ3JCZ0VGQlFjREFqQU0KQmdOVkhSTUJBZjhFQWpBQU1COEdBMVVkSXdRWU1CYUFGTkFEa2gyODljeENObnNubUdEN1BMcjFHTk5YTUlHVgpCZ05WSFJFRWdZMHdnWXFDR0dSaGNISXRkMlZpYUc5dmF5NWtZWEJ5TFhONWMzUmxiWUljWkdGd2NpMTNaV0pvCmIyOXJMbVJoY0hJdGMzbHpkR1Z0TG5OMlk0SWtaR0Z3Y2kxM1pXSm9iMjlyTG1SaGNISXRjM2x6ZEdWdExuTjIKWXk1amJIVnpkR1Z5Z2lwa1lYQnlMWGRsWW1odmIyc3VaR0Z3Y2kxemVYTjBaVzB1YzNaakxtTnNkWE4wWlhJdQpiRzlqWVd3d0RRWUpLb1pJaHZjTkFRRUxCUUFEZ2dFQkFIM0pYVnYzUDJQSDhXOWNRa1YvMzc5OGN6Y2p4ZXY2CkZMRmxmRkFNRlpkNng1UlJCWHcyWkozUWZmUVdlbytKZzhTU2hmUWVuWk9DWkhTNDQ3V3dDejBFNnVPOStsNHcKLzRkL2dJdGtsNlVjSFE3WEROY09rOTB6cUZKLzFhSlRTUW90cTB2VkVXVTNid3cwdmtxZmFEc2w4T0E0NWdVNwo1dGV2cGM3czZxbEtvVzI2STZjV2Jlc3RnS1poZG1yano4czNVVFZlS0toeGtXTTlTRllNc1VPZk44Z0hwWi9WCjZDYWtGNjJyOTdyTWFSc2tIZXpVTlMzR3o2MzlLbXI2SzdteTJMQnQ2cXB5eWFlQnEwOThtQjg5elY3Znh0bEwKaGRyMTEvYnUzVzNNSFFHMDVWd2ptMWgzNmtkeHFFMXlDL1VvTFNrdHFodWkyRVBRZmNMNVNlZz0KLS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQo=
-  
-
-  tls.key: LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFcFFJQkFBS0NBUUVBeEk3WEp0aW1ocERuVG04Z1FvYmRKbFhZdVdCTklEMWFRVVpZdHV1S2NGVHcxV1A3CnZ1V3QzUVRhWDIxcHNaay95OXoydmsyYTl4REZ2T1lFZzFDbXJCc0orZ2JubHh2aHhFaGt4SDNHWnRkdnNkK0QKRk15TmNwUVNLTk1SOHZTYUFUREdJUnNEL0VnZ2tZMThiTUxzNHdHOVdCU0hhOFVGQVo1WE1CRXR6czR6aFBtbApsZytyc2ZoVjMwRnV5OFIyVSt1VWpoYUZSVDJjWm9XbytiL2NkU3JaRDUwZ2lmRTBpbFpod1Z3Uk9UMThPa1BjCm5tdVMyTVQybGo1OXVRNEl0WWJxeTBnbmM2cHM5cHFaOHU4eUcwamMzYWVJNVgrM1NYM25kQlRnK2pPSWY0TGgKSnZ2Y0h6Znk0TUs0TDIxSWloQVp3UTRkbm9URjNHcHphQ1ZlUndJREFRQUJBb0lCQVFDSWJ1V2tqeWszcW9rRApobHNNRW5TYTBXZTNkTUxVS0FIbjRSNWZDYXQwUVdGUm5TNzIySklRSWZnNTJNWk9naU1vTEY0UXhlbFVxUTI0CkNxa0RSUTRMMUZEZWZjQnV3T202eHMwN0hscUNzL05Sc2VWWW9JdG1CcVY4Tk5YMm9CWHQwWjhWQjUyQ2xjWVYKZ2ZIbHhIK05LbjMxRDNyWU1VOUNTbGdXZ3pZYW53cjJKTmdRa3hiTkF2MFUrdWdvRTNzYmFYa2ptcDJUWjNCMgo1UmhxL3FDMkR3aStwdjY2NTg5RUQ5dUQ3QU52NFJOTk85SFFnT3hhalN3c1Z4eFlHK1cvVWpNUEIvanZYMkdnClBCK1hOS3pSMStwVXVyMGovK2MydjVLd1N6RVp4ZnJGNGczU2xGRUhDdTVVUEVlV25NU2NCNGlCSUhDOG40R1QKVzB2clNBQ1JBb0dCQU9GYVAvS2k1R1ZPK3MzZklyZThNM1NrM3ZtZHFIR0UwSGtpaldBR0t5WEQxNXBqNzBHOApsbHd2SHNZTSt3STZFMGxKWXd0bEplKzlZT2F0MzVpN2JRaUhkQXlZZFo0K3VYaGpKdU03dXErMStyNWc3TjlQCi94SE1Hc0hPSFdENjNhUTJnTlUyV3hxVG9kRzcxMnVyd24vNXVpRW9ENDJxTEZyL1kvNHhWd3BMQW9HQkFOOUsKR0VPamxwQXZ4TjgzcEYxTGZjUEdhV3lISUtWV2ZJa2ZsWTdiYnIxOHFkYUVQZ3E3V3M5M0pYZVpYb2VlbW5sMApBYWQwS3B2SVpjVFRyU1h3RUtSZFFZSG8rSm52alE5R2lRVldUck02clhCR2VSUTVHa0E1RUV6dzU1eHNNNEVECjBVZUlaSDl2aWVZSlZ5VzhMWFlBbFZYQTNjYlJWRHE0VGtnUTdyNTFBb0dBUDNIY1BTQ1ZNdHlJaWZ0L1Y4RTUKcjJaWGpHbFJxaHdkWVcxVDVpdjJhOXgyVC9aQXZ2NHNTdW5OUFM4Y1lDVWZsdXQ5WWhEcEhGVHgraUFMcW9GaQpFaHVvbFg4NjVnRjgwQ01DS01tQkpzVVNRaFVodTBGWGE1aE9GREJHWHk1aHhrQytCc2tWM3lhZlVXQVVKekVsClFraDVtYW9ncnQ2eFBERlk0cERiazM4Q2dZRUFsNk4vSlBoRXVQam43MXVmVVFpQ2lXRUdtWUNQS0JtN0MzaWEKbmVEaHJPZXJnNVpkZC9aU3JwQlFybzlHaGoyczFJeDJ6eHp5RHNlaWJXLy9wOE1IMmtmR3hBM09QdVJUWEt0ZgpSSE9ma05KcGxOVVhSeWVjYno4UmxkOEl1ODh6and0anBmdTNuRi9JTzZQZVBpODBoRzNTL09DMC9GK09ueTRwClk0RzBVVDBDZ1lFQW0wUzlIaWRNM2JaSGYwVnVvcWR6RHdKTERQRUEwZ2lUbWlhekh0cHFDM0JiRk1Oa0pVZUgKOVBnSVVFc0VCSTZvb1J5NmxrK1hZeVk1UUtCYjFHYi9ZdUd6bUNwTHZwdktTT3Y5V2lCZ0p5TjBOd2tWTmxzawpqdXVVZWN2SFplYkZTVnF5cHIvbFVlVU9Ld1U4UkcyRTE4cVBjdmp6ZnhUN0xaWmtoUFpmLzc4PQotLS0tLUVORCBSU0EgUFJJVkFURSBLRVktLS0tLQo=
+spec:
+  secretName:  dapr-webhook-cert
+  commonName: dapr-webhook.dapr-system.svc
+  dnsNames:
+    -  dapr-webhook.dapr-system.svc
+  issuerRef:
+    name: selfsigned
+    kind: ClusterIssuer
+    group: cert-manager.io
 ---
 # Source: dapr/charts/dapr_operator/templates/dapr_operator_deployment.yaml
 apiVersion: v1
@@ -210,7 +191,7 @@ metadata:
     app.kubernetes.io/part-of: dapr
     app.kubernetes.io/version: 1.10.2
 data:
-  caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURJRENDQWdpZ0F3SUJBZ0lSQUtnLzE3OGh1MkVydDk4NTVQYk1pb013RFFZSktvWklodmNOQVFFTEJRQXcKR2pFWU1CWUdBMVVFQXhNUFpHRndjaTEzWldKb2IyOXJMV05oTUI0WERUSXpNRE14TkRFd016TXhOVm9YRFRNegpNRE14TVRFd016TXhOVm93R2pFWU1CWUdBMVVFQXhNUFpHRndjaTEzWldKb2IyOXJMV05oTUlJQklqQU5CZ2txCmhraUc5dzBCQVFFRkFBT0NBUThBTUlJQkNnS0NBUUVBcVd4QXRBT0tZZlZ0SWVBL2RIRXorUkEvdjF0U0VvZjgKZEM3QXB3OEs5UHM4cEJ6cGRpVnBTU0l3YWc3T0JqM1U5QVo5b1VaMVpKOUNsZHBGNktDMEFrNFdoOTZ4c0tnTgpmZHEvUCszMkdkbmtCTnNzNm9pRTFiSGZPTzREQ0V4ZGxpT3hlTTBqRFNRK3l4enB5LzhaUDdpTDR2WUNsNDVkCmJjZG9jVW8zM1ZJNjBGRDdBQ2lqSDNvNTlTak9QTEEwTkxrR0RERVpFOThhbnNnQW43cGQ0RHBocHd1VUtHQWkKZC9zcVNrWmF4SjNDWC9lekxYdEM2VXAvNTA4TDFUd25Sc0Q5MFUvM0dxTlg5Vko1eG9yS1k4ZVZnRHNvOWJmSgo5L0EvRzlCK3Z5cTBxeSs5cmVSOWY2VVpoSGQyRkxXZVQ3Zm12UUJlOGF0Y1NtYTcrM05pQlFJREFRQUJvMkV3Clh6QU9CZ05WSFE4QkFmOEVCQU1DQXFRd0hRWURWUjBsQkJZd0ZBWUlLd1lCQlFVSEF3RUdDQ3NHQVFVRkJ3TUMKTUE4R0ExVWRFd0VCL3dRRk1BTUJBZjh3SFFZRFZSME9CQllFRk5BRGtoMjg5Y3hDTm5zbm1HRDdQTHIxR05OWApNQTBHQ1NxR1NJYjNEUUVCQ3dVQUE0SUJBUUNpeVhqT0EvWE1seTlEQUVzNzFiejRKQzROcFM3WTZXSWc2dU4wCitnN1pXaVBHeGtzT0xqaHFNOUVtTmZvdkVrTWFqcUF4Wnc0TXp6MHRtK0Rjc25UdEUwbnpIVndKZTRYeitZekQKY1A0RHFvZU44cnhOTGpmWlAyN0V6UWRKZ2lKOTRqWjIvVE1vUElCTXNnTE9vbFY0QXhzcXVJeVEzeStER3FhbApHa1R5YUk1Zmd3UmRnVFdDelVwNU1QMXVUSlBFdWptRnJtWXhlcTlhL2x3RUpTR0F2Qm0zaGtONzNlZDBncTFGCmFMZG1jQmxUVFpuNFE0V3BrRERFdVpuVFVSR2ZwOHRsU2lpWkQ0TEJpaWc5Y3JadDdON2xCc1R2TlhsS0h0eDMKYitSSlJSTWtxbWJQWVMxRlFXRmNSRklaemJ1MWp1bmdMeU9qclh2ZmdiVWQxV1F4Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+  caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURIekNDQWdlZ0F3SUJBZ0lRUm4wenEyL0lnVHBCeUViTWJwZHpOREFOQmdrcWhraUc5dzBCQVFzRkFEQWEKTVJnd0ZnWURWUVFERXc5a1lYQnlMWGRsWW1odmIyc3RZMkV3SGhjTk1qTXdNekUxTVRVd056RXhXaGNOTXpNdwpNekV5TVRVd056RXhXakFhTVJnd0ZnWURWUVFERXc5a1lYQnlMWGRsWW1odmIyc3RZMkV3Z2dFaU1BMEdDU3FHClNJYjNEUUVCQVFVQUE0SUJEd0F3Z2dFS0FvSUJBUUQzQXBDK1A2REpWbDlyWm5xNlRxQmZwWVJWUVlRUFdzRlAKdzVOb2YvaEdnKzl2TlJ2eE9YblQvbjZQcmpOY0VxNlJaalJmU2VFSXk5MGtJV2pIcWF2QUxqKzJoVEVjejUrOApla0dOS21uTE1lVVJ1ZlRabDd2N05ocU1QNi9uWjNqV21aSWttbTFFUkRpVlpTOGhBRElrOHNlU2dDbzV5RmZIClBkNmtNNXpNc3E0dnZ0Q1lnOThRSlVHemxtU3FoTEEyVklnSWhmdDZYaUV4MVpYeVVVWXlCYjBqQjFzQmhiV3EKZlVzemdrTWwrMDhqcldYdXVIZi9mYzBZOTZVcDExVzlCeVc1ZElUR0RSSmFTclV2bGEvUDNOYmtvU0VJaDJPTgpmUCtKV00yMlB5RHBDZW9qKytPOThoaUJvUmZhQjhBSWNFTVI3ZkUwTEpjamFiZzE0ZGVOQWdNQkFBR2pZVEJmCk1BNEdBMVVkRHdFQi93UUVBd0lDcERBZEJnTlZIU1VFRmpBVUJnZ3JCZ0VGQlFjREFRWUlLd1lCQlFVSEF3SXcKRHdZRFZSMFRBUUgvQkFVd0F3RUIvekFkQmdOVkhRNEVGZ1FVZ3hBYytvUkhoQ00wa0NXNmJPcE1SWnV5SnNVdwpEUVlKS29aSWh2Y05BUUVMQlFBRGdnRUJBTU1hMFY4bzhmVEtlVkVINi95cE9vQ2dtVmNZdCtmYjI1RXNxMTRZCi9OQUdHUmVlWmRhZm16Sy92SFh6U29wSTNWTmdZUjlLYndvV0NxNllwM25FUVVac3BJSWJwaVh3RjBhYkhYV1EKOVFYTEUwQ011LzY5c0lsMFk5ZVJUK0tzMTh1d3I2MDhtaXRKUU16eVVMVklkYVBNMjRsYU1VVytxV2FDVUNuVgpWdkJvajBNTFRwU0Ixd0JPaGdFY1dNOWk2K2Z3QkllM1hpZUpmczgvaUxwQXFWUU1mc3RHUkw5cFhvYTFnd3dHClFaK3FnNmN2SFJuK0h6b0xMTFRKZ0l1MnZIUE1RanBpSFEyNHhCNDVkbDdQMWtESzdpSk41NEN3WlErcFdVeGsKbi9aSndIZ010U2tDcW9XTUFiQ2lheDNiZXQ5MlhGUFR0ZjdwTmtxSzNSTUFKaVU9Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
 ---
 # Source: dapr/charts/dapr_sentry/templates/dapr_sentry_deployment.yaml
 apiVersion: v1
@@ -227,8 +208,8 @@ metadata:
 data:
 ---
 # Source: dapr/charts/dapr_sidecar_injector/templates/dapr_sidecar_injector_webhook_config.yaml
-apiVersion: v1
-kind: Secret
+apiVersion: cert-manager.io/v1
+kind: Certificate
 metadata:
   name: dapr-sidecar-injector-cert
   labels:
@@ -238,11 +219,16 @@ metadata:
     app.kubernetes.io/name: dapr
     app.kubernetes.io/part-of: dapr
     app.kubernetes.io/version: 1.10.2
-data:
-  tls.crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUQ3VENDQXRXZ0F3SUJBZ0lRRWlFTlExZVowaXNVU0t4VGpITzNJVEFOQmdrcWhraUc5dzBCQVFzRkFEQWoKTVNFd0h3WURWUVFERXhoa1lYQnlMWE5wWkdWallYSXRhVzVxWldOMGIzSXRZMkV3SGhjTk1qTXdNekUwTVRBegpNekUwV2hjTk16TXdNekV4TVRBek16RTBXakFnTVI0d0hBWURWUVFERXhWa1lYQnlMWE5wWkdWallYSXRhVzVxClpXTjBiM0l3Z2dFaU1BMEdDU3FHU0liM0RRRUJBUVVBQTRJQkR3QXdnZ0VLQW9JQkFRQ3BlR1RaUHZvM3lRUnMKYitOUHBnVEZ2Skg3Q1lpRlZYbU9ia21MZ05JT3lUOFl2cXVIQkhnK0tVSVoydEpRZGNVQmRaLzc0TlhzV1RoOQpid3lUbXVLRWE5VWQ1YmI1cmpLcGJSNllRM1dXMERnWXkvUmlZQWhtWFk0Z3AxRUd5WmxPVUlob0ZxU0gxQjJQCmNhUFhJbi9rMmRrZXNiSFkycWRiRm5nN3h4bWRKNXFMaUJRc2RZM2NTUTFUZHdTSXNFWFlkNXJXUXJuYXpPZ3UKQ0JJNFp6aXJaNXdVbCtYRGZjT1lXZW8zcDRIL0grZUhCTHlkcmg3S2ZZZm50bUVKRkxtQi9BdTdqV2RZbmoyMAoxMmhxcHRNN010SlA3YitMM3Uwd1VPQW9VMmhnWVBtdTR3cEs0aWdjSVV2S1FucE9XMlJTczVXMEtEWFFlYmlZClFHVlg2RWlqQWdNQkFBR2pnZ0VlTUlJQkdqQU9CZ05WSFE4QkFmOEVCQU1DQmFBd0hRWURWUjBsQkJZd0ZBWUkKS3dZQkJRVUhBd0VHQ0NzR0FRVUZCd01DTUF3R0ExVWRFd0VCL3dRQ01BQXdId1lEVlIwakJCZ3dGb0FVRUZBRQpNZVNDQ0dQNThCbk5YVWJValdlTkp5RXdnYmtHQTFVZEVRU0JzVENCcm9JaFpHRndjaTF6YVdSbFkyRnlMV2x1CmFtVmpkRzl5TG1SaGNISXRjM2x6ZEdWdGdpVmtZWEJ5TFhOcFpHVmpZWEl0YVc1cVpXTjBiM0l1WkdGd2NpMXoKZVhOMFpXMHVjM1pqZ2kxa1lYQnlMWE5wWkdWallYSXRhVzVxWldOMGIzSXVaR0Z3Y2kxemVYTjBaVzB1YzNaagpMbU5zZFhOMFpYS0NNMlJoY0hJdGMybGtaV05oY2kxcGJtcGxZM1J2Y2k1a1lYQnlMWE41YzNSbGJTNXpkbU11ClkyeDFjM1JsY2k1c2IyTmhiREFOQmdrcWhraUc5dzBCQVFzRkFBT0NBUUVBemRSUjN5WkoxRnVhd0pnM3RyNDQKRCtkNWtYcTNJY2ozN3N2eHBwajV3N1hKVi9EaVB6cnhWQUtMYkY0a2lSVXZDZzhGTStyVXBOU3owMlRSTzZzdQpaYkJtdEF2NjhWR1NCTy9tODk0RS9qdWFNT1RkSUZaeU4waTZTL3NSUnMwY29yazNNNThHS1J0cWNJdnlucmF1CjdrS2FDMUUwU09PSlZkZC9EZG5GL0Ivb3dBc0U5ZVlvL0R5SGx5T2JJWWlPdjNoakd5ZW5uUUlhZjFmWURZNzUKNGQ0TjFxZFZEN3NzanpaY1c1Y3Rhd2xQcHpTZ29yYUgvZStEcjROeEVLUnN6cmZVV3hjSlN1b1ZjT2V0T2x4dwpOS1JrTk1RWTlHQjZabVZ1NHRTNXBjZTZJTUpsVXFZOEZWMGU0cEVBNjJYa0hPTXF4aFY0Ry9oRUxCNlJRTWUrCnVnPT0KLS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQo=
-  
-
-  tls.key: LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFb3dJQkFBS0NBUUVBcVhoazJUNzZOOGtFYkcvalQ2WUV4YnlSK3dtSWhWVjVqbTVKaTREU0Rzay9HTDZyCmh3UjRQaWxDR2RyU1VIWEZBWFdmKytEVjdGazRmVzhNazVyaWhHdlZIZVcyK2E0eXFXMGVtRU4xbHRBNEdNdjAKWW1BSVpsMk9JS2RSQnNtWlRsQ0lhQmFraDlRZGozR2oxeUovNU5uWkhyR3gyTnFuV3haNE84Y1puU2VhaTRnVQpMSFdOM0VrTlUzY0VpTEJGMkhlYTFrSzUyc3pvTGdnU09HYzRxMmVjRkpmbHczM0RtRm5xTjZlQi94L25od1M4Cm5hNGV5bjJINTdaaENSUzVnZndMdTQxbldKNDl0TmRvYXFiVE96TFNUKzIvaTk3dE1GRGdLRk5vWUdENXJ1TUsKU3VJb0hDRkx5a0o2VGx0a1VyT1Z0Q2cxMEhtNG1FQmxWK2hJb3dJREFRQUJBb0lCQUdON0tBQWJKdmp1U0dsNwpPTDE5b0ZtTyswYVk3d29PQmVBbFA0ampvdXRKR1gvbUZYeVpsQmd4VWZzcFo4SVJrQWJ1VEc2b0tndW15REZoCnFjbFA1MTZDaWtVVm50WnNlcExZV2xoWmFVS1JrZ3lFVlQ0V1QzZi92VG5QM2hHVThDaDN2OHNTVjV6Z1dFWG4KR0oxbVJCdE1BbGN4U2t3WTlwclMwdHVNWWEzTko2QldNZ2xWOXZXQjhBZFlEaDZrNnNqb2lpQnRWTUJjc0t1UgpyVUJnY2tzc2s5akFETUVZa0U2UU96eThnRXdYMHlZVnl5NW9UUVFzZFBFSW45V1ZkSi9vT3l6S2toMTJpbGV6ClZmMjFOQlA0RlJQZjZmTjJIamNmazRrUzJBNmZxejFKUWZrRTZTZXd6L1RsVkRkQWEwOWE5bktxNHA2bXZoNWgKTElzenpya0NnWUVBd295UVNpMTRTME1TdmdPV3N4NGNoQVNQS2J3enlwN3d0K2gzVVQ2eWtDQlVyVWNjQTFyUgpGeUI1eGMzMGVFeHZzZkJRbk9FOVNQRDlwQ1Z4MXBraHBoaXBEamJxVTlrSjN2TGhhZkxKS3lMRDBtc2E2cExSCjdvL2dPY3NHb0E0NElGTnU4YmFGcVcxU3lyUUxkT2E2VmZXb283OXJvZjl0Y1B4bHhscWdVZjBDZ1lFQTN2L3YKR2tWUUJuQ2RWRDluK0lYT2ZGWmd2dXkrNkc5amVMZFFGTXpSUDJuYk1odi8yMmFmY3VUVW5JN0FxbkdJM2Z3TwpmUXJRQ1ZnMWRBV3Q2Q1k1VVdHUE8xRXBHakZDa0EwME5TeG5jWHRnVWRzZGFrbWd3M2wzZ1pGeW1TOWFOL3VLCmRhaXZPK3BsamRHS1BXVzhMUEVXVTA0ZHBqdDRBang3VVZtMU54OENnWUJHNW9zL1BVcjF3ci8xMThENERpVSsKUjVzVkRxMmhUa05VQXJoWk40eEQwa1NKMGJ4M3pJVWU5SXJzZDU1OHFQNmJ6b1RTWjVPNkhYbVNkTU1EL2xLeApBWk82eG5DbmxoVnUxdjBuYTMrODVMS1E0TSt5WlVkMHRhSjE3WFBBcU8zemVmU1l5bmZ6d3cvRko5QjFEaEVpCmVxQzI3SEFCWGVFNHFBTS9Rby9pMFFLQmdHV2s0cWRtMElNZThaZGxEMDhJTG9ZZUdScnRibGNqN29Nbml5anYKOHJDazMzU0hycWVpcnlyL2dxbVpwOWdJeUFubXlmUFU2ZDVZaG9UTDBlanZBMUZFMXJTQzJlbEdhc0NlUkIyNApqNjM2UG4wUkV1ZFBpQ2VSUmhlWTVGTk9jaUR5VnJvcW1UVUdNaVBpVHRDTmZxZzllNStkQzRhcHRKblFWNlZNCjdueWhBb0dCQUw4ek5HRm1hSGFEMmYrb2J4UDYzTlcvL2RaRm0zK2lDQlI3eXQvZng3K24vY0ZyVHRRcG1McnIKdHFxbS9zUnBnbnJydGRYa3laaXlNSVZJdjNRZ0NLQ2JQaHN0VWl6eHpnMDdZM0QvQ1FlcnRZaCtvaFJlQjg5dwptZEpYYWlkWDRRL0FLRkJrUm40bERlR0YrMWxRUHdkVUMxcFl0MDl1L0FJYmIxeERuckExCi0tLS0tRU5EIFJTQSBQUklWQVRFIEtFWS0tLS0tCg==
+  namespace: dapr-system
+spec:
+  secretName: dapr-sidecar-injector-cert
+  commonName: dapr-sidecar-injector.dapr-system.svc
+  dnsNames:
+    - dapr-sidecar-injector.dapr-system.svc
+  issuerRef:
+    name: selfsigned
+    kind: ClusterIssuer
+    group: cert-manager.io
 ---
 # Source: dapr/charts/dapr_rbac/templates/dashboard.yaml
 kind: ClusterRole
@@ -611,27 +597,6 @@ roleRef:
   kind: Role
   name: dapr-sentry
 ---
-# Source: dapr/charts/dapr_dashboard/templates/dapr_dashboard_service.yaml
-kind: Service
-apiVersion: v1
-metadata:
-  name: dapr-dashboard
-  labels:
-    app.kubernetes.io/component: dashboard
-    app.kubernetes.io/managed-by: helm
-    app.kubernetes.io/name: dapr
-    app.kubernetes.io/part-of: dapr
-    app.kubernetes.io/version: 1.10.2
-  annotations:
-spec:
-  selector:
-    app: dapr-dashboard
-  ports:
-  - protocol: TCP
-    port: 8080
-    targetPort: 8080
-  type: ClusterIP
----
 # Source: dapr/charts/dapr_operator/templates/dapr_operator_service.yaml
 kind: Service
 apiVersion: v1
@@ -734,68 +699,6 @@ spec:
     name: https
   selector:
     app: dapr-sidecar-injector
----
-# Source: dapr/charts/dapr_dashboard/templates/dapr_dashboard_deployment.yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: dapr-dashboard
-  labels:
-    app: dapr-dashboard
-    app.kubernetes.io/component: dashboard
-    app.kubernetes.io/managed-by: helm
-    app.kubernetes.io/name: dapr
-    app.kubernetes.io/part-of: dapr
-    app.kubernetes.io/version: 1.10.2
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: dapr-dashboard
-  template:
-    metadata:
-      labels:
-        app: dapr-dashboard
-        app.kubernetes.io/component: dashboard
-        app.kubernetes.io/managed-by: helm
-        app.kubernetes.io/name: dapr
-        app.kubernetes.io/part-of: dapr
-        app.kubernetes.io/version: 1.10.2
-    spec:
-      serviceAccountName: dapr-dashboard
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-             nodeSelectorTerms:
-                - matchExpressions:
-                  - key: kubernetes.io/os
-                    operator: In
-                    values:
-                    - linux
-        podAntiAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-          - labelSelector:
-              matchExpressions:
-              - key: app
-                operator: In
-                values:
-                - dapr-dashboard
-            topologyKey: "kubernetes.io/hostname"
-      containers:
-      - name: dapr-dashboard
-        image: "docker.io/daprio/dashboard:0.12.0"
-        imagePullPolicy: IfNotPresent
-        securityContext:
-          runAsNonRoot: true
-        env:
-        - name: NAMESPACE
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.namespace
-        ports:
-        - containerPort: 8080
-        resources:
-          {}
 ---
 # Source: dapr/charts/dapr_operator/templates/dapr_operator_deployment.yaml
 apiVersion: apps/v1
@@ -1241,7 +1144,7 @@ metadata:
     app.kubernetes.io/version: 1.10.2
 spec:
   mtls:
-    enabled: true
+    enabled: false
     workloadCertTTL: 24h
     allowedClockSkew: 15m
 ---
@@ -1264,7 +1167,7 @@ webhooks:
       namespace: dapr-system
       name: dapr-sidecar-injector
       path: "/mutate"
-    caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURNVENDQWhtZ0F3SUJBZ0lRRk1Cd0wxaHBOcFRIZW5RekJ4U0N5REFOQmdrcWhraUc5dzBCQVFzRkFEQWoKTVNFd0h3WURWUVFERXhoa1lYQnlMWE5wWkdWallYSXRhVzVxWldOMGIzSXRZMkV3SGhjTk1qTXdNekUwTVRBegpNekUwV2hjTk16TXdNekV4TVRBek16RTBXakFqTVNFd0h3WURWUVFERXhoa1lYQnlMWE5wWkdWallYSXRhVzVxClpXTjBiM0l0WTJFd2dnRWlNQTBHQ1NxR1NJYjNEUUVCQVFVQUE0SUJEd0F3Z2dFS0FvSUJBUURYNUtkK0MvMEoKd2ppWElOQUxsNi9lTTFadnZnM0xXMVlBMGJ0Yy91SzhJL0ZNTlgydEt5dlVLUUovRnVDclJ5ek9LVTdTNWZCbQpYUUtsQUJXRU0vcDN4cHNRSG9YSDRVY3g1OFZRbVFMeTBRUVNkYWt6N1RXZ0NHZ2FMVGVaQnpVWHE2RzRlcVRUCkxXUWp6TzByQ1NkMStVQW15dE9iTWtGZkVSVjM4Ukh1c0dsd0MzempqRFJ5VzlQT0xKKzgzUDhRMDV5bE5nakYKYS9CNjBFbWZ0MXBHNnp5UHZUYk9XUW5vNm5Jb0pTTW9YRURINzdUT1NkZ2NUdVdUbFNZdHFFYnhIaW8wbFFmRApQcmlmN1pZZmZnUU9OSDZWT3RPaTlBdC9NbnFZQUZFbmxuWFNpT0lOOXREQkFVNy9qSldvdVJsdHJtdmtYbUJUClFDWDZqbmhQZzFrekFnTUJBQUdqWVRCZk1BNEdBMVVkRHdFQi93UUVBd0lDcERBZEJnTlZIU1VFRmpBVUJnZ3IKQmdFRkJRY0RBUVlJS3dZQkJRVUhBd0l3RHdZRFZSMFRBUUgvQkFVd0F3RUIvekFkQmdOVkhRNEVGZ1FVRUZBRQpNZVNDQ0dQNThCbk5YVWJValdlTkp5RXdEUVlKS29aSWh2Y05BUUVMQlFBRGdnRUJBRisxZVdkNk5YdTh1VFBoCkNBRHpWY2RFTkZ3TjAyN0xlVndmT2FIZUNyVmk3MFVrSEJmTnR5L2FVbGYyWnJIM2o2WTJNWUdrdEMzWjRpM0YKdGhORVdkcXNGRVV6aXp0S0ZiL2dXQUNsaC9QM2JYT1RJVzE4LzVPS3ZycG5lMmcvOEhsV1pKNXIyaEZzbHQ2eQpCRktpbnhqNzRKMWJ0czFVNGVIMjBSdEVwVzlPbEU2TXg5eHpaWjg2U3dqY21LSElDYmlZdlk1OXdxWnk1M2F6CkNiTTRWck55NUk4bmE1c25YbnhKZk4xRk5iN3VMeVpMU3F2bGpoakRPTkxUazAwczJ6UkV5TkZxbXh6SklFQ0YKVk40TDVoM3hQTDdzYWJCNGxMbGJoaEhkc090MzlmQlVidXFKU0V2L1d5blkvalVjdVRvTjMyaldhQmQ5NUVycgp0UjE3L2ZzPQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
+    caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURNakNDQWhxZ0F3SUJBZ0lSQUxab2k2WUlDSjkrSmJTOWNmbTFiUFV3RFFZSktvWklodmNOQVFFTEJRQXcKSXpFaE1COEdBMVVFQXhNWVpHRndjaTF6YVdSbFkyRnlMV2x1YW1WamRHOXlMV05oTUI0WERUSXpNRE14TlRFMQpNRGN3T1ZvWERUTXpNRE14TWpFMU1EY3dPVm93SXpFaE1COEdBMVVFQXhNWVpHRndjaTF6YVdSbFkyRnlMV2x1CmFtVmpkRzl5TFdOaE1JSUJJakFOQmdrcWhraUc5dzBCQVFFRkFBT0NBUThBTUlJQkNnS0NBUUVBNkJmSmlpenUKdVoxa2xHTnROaFVWc3krc2c5UDN3RFFrUlVTS25RRmg5K2JZNkxRMzhrcjg0SGFYcjVxRW9PcXo2bk5hSkR0bApWaENVU2RZb0R1b3h2UCsrUi9tMkFQTlllTU1ldy9vWktrWHRBdWVEVDdnL055VVo2N2dJSXcrdDVxalBtbVdGCmVKM3R4bGN6VVZHQ21waDVOQnZhdWlYb1hwRUhPM0dHaEgyOStqRjBQQjNueGdIOXBacFg1UGg4NDV6WVBMb3MKR0xYVkdSN1UwYkxuWkhhZDhNZUF4UWxCaDlKcG8yRzk2TWtkWGxJUG5ZR0RpalpuU3JvS01wa2I4eUxRRVZEYgpzS1hJYkhHYU05WFh6N1ViZmlxblpkK1hhM3Eva2NZRnJOUXB4d1BwNENxZ0hXc3RrczBQVG1pSG4yTVA0YXVMCmRVenVZNGplNnJqeUh3SURBUUFCbzJFd1h6QU9CZ05WSFE4QkFmOEVCQU1DQXFRd0hRWURWUjBsQkJZd0ZBWUkKS3dZQkJRVUhBd0VHQ0NzR0FRVUZCd01DTUE4R0ExVWRFd0VCL3dRRk1BTUJBZjh3SFFZRFZSME9CQllFRkxWcApOUlRLMVNSVHZoM1hPNUVYYWlVaWdWOEhNQTBHQ1NxR1NJYjNEUUVCQ3dVQUE0SUJBUUFiSU43WU1mOHBSYlhQCndSQjVLT2NBR2REd1Z0cmJTL296QWUrSnhYb1dpM0xDeHVUNEYyV3JseGx5eS9vTFB1QUJiZG56VUdObGF5bE4KWjZxekFsMUJybWFXMEt1ZG9OSWFGL3ZqYUlaTTZoYm1ESk9FbXM3M3lIdXkrZVVDUS95c0hNWDEwSW8vUXc5ZwpQa1BmVkg3QkFBN0k1MEFlVXVRRlJFOTRKblBVNTlDbEJuRVlFWEJTYUJuMi81NmtVak1WU05jaU5jRU9GdkcvCm5nZFZ5OTJ5bm5KNDUrZjhBNGxTdWFROEdvSi9mNHN0NEU0WWtGVUMxZ3dEQ3prbyt0WTdSU1JIb0Z3aWt6N2QKZVZhODFBS1BtZUF3OW8wUEMvTXNVelBpRFdTSVVFaExtMFJpMmJ4TGdyUnNUc2ZmQkNJaFF4ZzRSVDdGL3dwYgpRcGhYSW1pRQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
   rules:
   - apiGroups:
     - ""
