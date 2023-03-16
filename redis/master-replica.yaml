@@ -5,7 +5,7 @@ kind: ServiceAccount
 automountServiceAccountToken: true
 metadata:
   name: redis
-  namespace: "default"
+  namespace: "d218653"
   labels:
     app.kubernetes.io/name: redis
     helm.sh/chart: redis-17.8.2
@@ -17,7 +17,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: redis
-  namespace: "default"
+  namespace: "d218653"
   labels:
     app.kubernetes.io/name: redis
     helm.sh/chart: redis-17.8.2
@@ -25,14 +25,14 @@ metadata:
     app.kubernetes.io/managed-by: Helm
 type: Opaque
 data:
-  redis-password: "TUVXSmpoQXlGTA=="
+  redis-password: "Nkt4QW03cG5VRw=="
 ---
 # Source: redis/templates/configmap.yaml
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: redis-configuration
-  namespace: "default"
+  namespace: "d218653"
   labels:
     app.kubernetes.io/name: redis
     helm.sh/chart: redis-17.8.2
@@ -64,7 +64,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: redis-health
-  namespace: "default"
+  namespace: "d218653"
   labels:
     app.kubernetes.io/name: redis
     helm.sh/chart: redis-17.8.2
@@ -171,7 +171,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: redis-scripts
-  namespace: "default"
+  namespace: "d218653"
   labels:
     app.kubernetes.io/name: redis
     helm.sh/chart: redis-17.8.2
@@ -251,7 +251,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: redis-headless
-  namespace: "default"
+  namespace: "d218653"
   labels:
     app.kubernetes.io/name: redis
     helm.sh/chart: redis-17.8.2
@@ -275,7 +275,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: redis-master
-  namespace: "default"
+  namespace: "d218653"
   labels:
     app.kubernetes.io/name: redis
     helm.sh/chart: redis-17.8.2
@@ -301,7 +301,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: redis-replicas
-  namespace: "default"
+  namespace: "d218653"
   labels:
     app.kubernetes.io/name: redis
     helm.sh/chart: redis-17.8.2
@@ -327,7 +327,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: redis-master
-  namespace: "default"
+  namespace: "d218653"
   labels:
     app.kubernetes.io/name: redis
     helm.sh/chart: redis-17.8.2
@@ -353,10 +353,10 @@ spec:
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/component: master
       annotations:
-        checksum/configmap: 6d3aa0c822ba881a3116aa219b424fa0e84da848a9cb04acca258e4185b11589
-        checksum/health: f5ee7f281ab7c5d1aa8407bf3042aa72284fa92a21f6aec6b6c83c9daf3c1459
-        checksum/scripts: bcaa79bc5304b69c2bb8058550c6892dd325a0d3a6c577c4ece95504107d48a4
-        checksum/secret: dc592dac311c02c32266663199cbd57293a9552bc81d7252bf8c7cdec35b55a1
+        checksum/configmap: f053de6b970d38bc76f96b228724f2a884f313fcb15e1414b48c35e0a9d86aad
+        checksum/health: 8cb0b1694a29dafc522d926b370ad459d65110a2228fb209dde1521a9e5c5c06
+        checksum/scripts: d6a5f50e12028d92e5870245f4bfc38be21423da9888e136db60bf6e2064f90b
+        checksum/secret: 769ba7b8366e57d48d3db0156baae6bd1b382a85959dcae7de739b986e8d7e6f
     spec:
       
       securityContext:
@@ -482,7 +482,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: redis-replicas
-  namespace: "default"
+  namespace: "d218653"
   labels:
     app.kubernetes.io/name: redis
     helm.sh/chart: redis-17.8.2
@@ -508,10 +508,10 @@ spec:
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/component: replica
       annotations:
-        checksum/configmap: 6d3aa0c822ba881a3116aa219b424fa0e84da848a9cb04acca258e4185b11589
-        checksum/health: f5ee7f281ab7c5d1aa8407bf3042aa72284fa92a21f6aec6b6c83c9daf3c1459
-        checksum/scripts: bcaa79bc5304b69c2bb8058550c6892dd325a0d3a6c577c4ece95504107d48a4
-        checksum/secret: cbfa747119235c921f0ee3ae0240817c9f1b7b1d56f3f0593eafc8aa4ff0ad0b
+        checksum/configmap: f053de6b970d38bc76f96b228724f2a884f313fcb15e1414b48c35e0a9d86aad
+        checksum/health: 8cb0b1694a29dafc522d926b370ad459d65110a2228fb209dde1521a9e5c5c06
+        checksum/scripts: d6a5f50e12028d92e5870245f4bfc38be21423da9888e136db60bf6e2064f90b
+        checksum/secret: b7640ca833d5f076c28eb45bfa6e3fb6e4857ebbf64701715ebbecaa0f9bd1a4
     spec:
       
       securityContext:
@@ -550,7 +550,7 @@ spec:
             - name: REDIS_REPLICATION_MODE
               value: replica
             - name: REDIS_MASTER_HOST
-              value: redis-master-0.redis-headless.default.svc.cluster.local
+              value: redis-master-0.redis-headless.d218653.svc.cluster.local
             - name: REDIS_MASTER_PORT_NUMBER
               value: "6379"
             - name: ALLOW_EMPTY_PASSWORD
